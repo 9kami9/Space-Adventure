@@ -3,7 +3,6 @@ using UnityEngine.SceneManagement;
 
 public class CollisionHandler : MonoBehaviour
 {
-    bool isTransitioning = false;
     [SerializeField] float delayTime = 0.5f;
 
     [SerializeField] AudioClip explosionSound;
@@ -14,12 +13,32 @@ public class CollisionHandler : MonoBehaviour
 
     AudioSource audioSource;
 
+    bool isTransitioning = false;
+    bool collisionDisabled = false;
+
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
     }
 
-    private void OnCollisionEnter(Collision other)
+    void Update()
+    {
+        RespondToDebugKeys();
+    }
+
+    void RespondToDebugKeys()
+    {
+        if (Input.GetKeyDown(KeyCode.L))
+        {
+            LoadNextLevel();
+        }
+        else if (Input.GetKeyDown(KeyCode.C))
+        {
+            collisionDisabled = !collisionDisabled; // toggle collision
+        }
+    }
+
+    void OnCollisionEnter(Collision other)
     {
         if (isTransitioning) { return; }
         switch (other.gameObject.tag)
@@ -38,6 +57,7 @@ public class CollisionHandler : MonoBehaviour
 
     void StartCrashSequence()
     {
+        if (collisionDisabled) { return; }
         isTransitioning = true;
 
         explosionParticles.Play();
